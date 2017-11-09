@@ -10,3 +10,6 @@ target_link_libraries(ramps_example libpython2.7.so)
 
 add_executable(scaling_example examples/scaling_example.cpp scaling.h)
 target_link_libraries(scaling_example libpython2.7.so)
+
+add_executable(continuous_angle_example examples/continuous_angle_example.cpp continuous_angle.h)
+target_link_libraries(continuous_angle_example libpython2.7.so)

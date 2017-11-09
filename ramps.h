@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-namespace ramps
+namespace mru
 {
 
 class VelocityRamp
@@ -89,7 +89,7 @@ class CosineRamp : public VelocityRamp
 public:
   CosineRamp(double v0, double vd, double T) : VelocityRamp(v0, vd, T)
   {
-    A_ = (vd_ - v0_) / 2.0; // Amplitude is twice bigger because the cosine is shifted up
+    A_ = (vd_ - v0_) / 2.0; // Amplitude is twice smaller because the cosine is shifted up
     omega_ = 2.0 * M_PI / (2.0 * T_); // Period is twice bigger because we take only half
   }
 
@@ -111,4 +111,4 @@ private:
 };
 
 
-} // end namespace ramps
+} // end namespace mru

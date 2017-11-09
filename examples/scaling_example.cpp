@@ -4,7 +4,7 @@
 #include "../scaling.h"
 
 using namespace std;
-using namespace scaling;
+using namespace mru;
 
 namespace plt = matplotlibcpp;
 

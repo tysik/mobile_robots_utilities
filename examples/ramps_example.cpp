@@ -4,7 +4,7 @@
 #include "../ramps.h"
 
 using namespace std;
-using namespace ramps;
+using namespace mru;
 
 namespace plt = matplotlibcpp;
 
