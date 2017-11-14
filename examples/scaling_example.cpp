@@ -48,10 +48,11 @@ int main()
   plt::title("Scaling");
   plt::xlabel("Time [s]");
   plt::ylabel("Velocity");
-  plt::named_plot("Linear [m/s]", time, u, "--");
+  plt::named_plot("Linear [m/s]", time, u, "-");
   plt::named_plot("Angular [rad/s]", time, w, "-");
   plt::named_plot("Linear scaled [m/s]", time, u_scaled, "--");
-  plt::named_plot("Angular scaled [rad/s]", time, w_scaled, "-");
+  plt::named_plot("Angular scaled [rad/s]", time, w_scaled, "--");
+  plt::ylim(-0.1, 3.25);
   plt::legend();
   plt::grid(true);
   plt::show();

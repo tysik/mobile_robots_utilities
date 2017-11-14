@@ -14,5 +14,5 @@ target_link_libraries(scaling_example libpython2.7.so)
 add_executable(continuous_angle_example examples/continuous_angle_example.cpp continuous_angle.h)
 target_link_libraries(continuous_angle_example libpython2.7.so)
 
-#add_executable(trajectories_example trajectories.h)
-#target_link_libraries(trajectories_example libpython2.7.so)
+add_executable(trajectories_example examples/trajectories_example.cpp trajectories.h)
+target_link_libraries(trajectories_example libpython2.7.so)

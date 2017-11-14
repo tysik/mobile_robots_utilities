@@ -5,10 +5,18 @@
 namespace mru
 {
 
+double makeAngleRestricted(double angle)
+{
+  if (angle < -M_PI || angle > M_PI)
+    angle = atan2(sin(angle), cos(angle));
+
+  return angle;
+}
+
 double makeAngleContinuous(double angle, double prev_angle)
 {
-  double new_angle_aux = atan2(sin(angle), cos(angle));
-  double prev_angle_aux = atan2(sin(prev_angle), cos(prev_angle));
+  double new_angle_aux = makeAngleRestricted(angle);
+  double prev_angle_aux = makeAngleRestricted(prev_angle);
 
   double angle_diff = new_angle_aux - prev_angle_aux;
 
