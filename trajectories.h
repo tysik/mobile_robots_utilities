@@ -8,10 +8,6 @@
 namespace mru
 {
 
-/**
- * Position in meters and orientation in radians denoted
- * with respect to global coordinate frame
- */
 struct Pose
 {
   Pose(double x = 0.0, double y = 0.0, double phi = 0.0) :
@@ -23,11 +19,6 @@ struct Pose
   double phi;
 };
 
-/**
- * Linear velocity in meters per second and angular velocity
- * in radians per second denoted with respect to global
- * coordinate frame
- */
 struct Twist
 {
   Twist(double x = 0.0, double y = 0.0, double w = 0.0) :
@@ -39,10 +30,6 @@ struct Twist
   double w;
 };
 
-/**
- * Position, orientation, linear and angular velocities
- * denoted with respect to global coordinate frame
- */
 struct Configuration
 {
   Configuration(const Pose &pose = Pose(), const Twist &twist = Twist()) :
@@ -54,10 +41,7 @@ struct Configuration
 };
 
 
-/**
- * Base class for trajectories
- */
-class Trajectory2D
+class DiffDriveTrajectory
 {
 public:
   double getDuration() const { return duration_; }
@@ -68,7 +52,7 @@ public:
   const Configuration& operator() (double time) { return recalculate(time); }
 
 protected:
-  Trajectory2D(const Configuration &start = Configuration(),
+  DiffDriveTrajectory(const Configuration &start = Configuration(),
                const Configuration &end = Configuration(),
                double duration = 0.0) :
     duration_(duration),
@@ -84,58 +68,62 @@ protected:
 };
 
 
-class PointTrajectory : public Trajectory2D
+class PointTrajectory : public DiffDriveTrajectory
 {
 public:
-  PointTrajectory(const Pose &pose) :
-    Trajectory2D(Configuration(pose))
-  {}
+  PointTrajectory(const Configuration &start = Configuration(),
+                  const Configuration &end = Configuration(),
+                  double duration = 0.0) :
+    DiffDriveTrajectory(start, end, duration)
+  {
+    end_.pose.x = start.pose.x;
+    end_.pose.y = start.pose.y;
+    start_.twist = current_.twist = end_.twist = Twist();
+  }
 
-  virtual const Configuration& recalculate(double t) { return current_; }
+  virtual const Configuration& recalculate(double time)
+  {
+    if (time <= 0.0)
+      current_ = start_;
+    else if (time > 0.0 && time < duration_)
+    {
+      current_.pose.phi = start_.pose.phi + (end_.pose.phi - start_.pose.phi) * time / duration_;
+      current_.twist.w = (end_.pose.phi - start_.pose.phi) / duration_;
+    }
+    else
+      current_ = end_;
+
+    return current_;
+  }
 };
 
 
-class LinearTrajectory : public Trajectory2D
+class LinearTrajectory : public DiffDriveTrajectory
 {
 public:
-  LinearTrajectory(const Pose &start, const Pose &end, double duration)
-  {
-    duration_ = duration;
-
-    double phi = atan2(end.y - start.y, end.x - start.x);
-
-    start_ = Configuration(Pose(start.x, start.y, phi),
-                           Twist((end.x - start.x) / duration, (end.y - start.y) / duration));
-    current_ = start_;
-
-    end_ = Configuration(Pose(end.x, end.y, phi),
-                        Twist((end.x - start.x) / duration, (end.y - start.y) / duration));
-  }
-
   LinearTrajectory(const Configuration &start, const Configuration &end, double duration) :
-    Trajectory2D(start, end, duration)
+    DiffDriveTrajectory(start, end, duration)
   {
-
+    start_.pose.phi = current_.pose.phi = end_.pose.phi = atan2(end.pose.y - start.pose.y,
+                                                                end.pose.x - start.pose.x);
+    start_.twist.w = current_.twist.w = end_.twist.w = 0.0;
   }
 
 protected:
   virtual const Configuration& recalculate(double time)
   {
     if (time <= 0.0)
-    {
-      current_.pose = start_.pose;
-      current_.twist = Twist();
-    }
+      current_ = start_;
     else if (time > 0.0 && time < duration_)
     {
       current_.pose.x = start_.pose.x + (end_.pose.x - start_.pose.x) * time / duration_;
       current_.pose.y = start_.pose.y + (end_.pose.y - start_.pose.y) * time / duration_;
+
+      current_.twist.x = start_.twist.x + (end_.twist.x - start_.twist.x) * time / duration_;
+      current_.twist.y = start_.twist.y + (end_.twist.y - start_.twist.y) * time / duration_;
     }
     else
-    {
-      current_.pose = end_.pose;
-      current_.twist = Twist();
-    }
+      current_ = end_;
 
     return current_;
   }
